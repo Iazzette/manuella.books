@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Livros do Meu Amorzinho 💗</title>
+
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #fdf2ff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            margin-top: 20px;
+            color: #c85ec8;
+            font-size: 32px;
+            text-shadow: 0 0 4px #ffd7ff;
+        }
+        #contador {
+            margin-top: 5px;
+            font-size: 20px;
+            color: #b044b0;
+            font-weight: bold;
+        }
+        .search-box {
+            margin-top: 30px;
+            display: flex;
+            align-items: center;
+            background: white;
+            padding: 14px 22px;
+            border-radius: 50px;
+            box-shadow: 0 0 12px rgba(0,0,0,0.15);
+            width: 340px;
+        }
+        .search-box input {
+            border: none;
+            outline: none;
+            margin-left: 10px;
+            font-size: 17px;
+            flex-grow: 1;
+            padding: 10px;
+            border-radius: 20px;
+            background: #ffe6ff;
+        }
+        .search-box button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 26px;
+        }
+        .letras {
+            width: 90%;
+            max-width: 800px;
+            margin-top: 40px;
+            padding-bottom: 40px;
+        }
+        details {
+            background: #ffffff;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.1);
+            padding: 10px 14px;
+        }
+        summary {
+            cursor: pointer;
+            font-size: 20px;
+            color: #c85ec8;
+            padding: 6px 0;
+        }
+        ul {
+            list-style: none;
+            margin: 0;
+            padding-left: 10px;
+        }
+        li {
+            padding: 8px 0;
+            font-size: 16px;
+            border-bottom: 1px solid #e6c6ff;
+            color: #555;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        li:last-child {
+            border-bottom: none;
+        }
+        .trash {
+            cursor: pointer;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Livros do Meu Amorzinho 📚💗</h1>
+
+    <!-- CONTADOR TOTAL -->
+    <div id="contador">Ela já tem 0 livros! 💗</div>
+
+    <div class="search-box">
+        <button id="btnAdicionar">🔍</button>
+        <input type="text" id="inputLivro" placeholder="Adicione o livro, meu amorzinho 💖" />
+    </div>
+
+    <!-- FOTO DO CASAL -->
+    <div style="margin-top:25px; text-align:center;">
+        <!-- Ajuste o nome do arquivo da foto aqui -->
+       <img src="IMG/foto.png" 
+     alt="Foto do casal"
+     style="width:150px; border-radius:20px; box-shadow:0 0 12px rgba(0,0,0,0.18);">
+        <p style="color:#c85ec8; font-size:16px; margin-top:10px; font-weight:bold;">
+            Para cada livro adicionado é um eu te amo mais, minha braveza 💗
+        </p>
+    </div>
+
+    <div class="letras" id="listaLetras"></div>
+
+    <script>
+        let livros = JSON.parse(localStorage.getItem("livrosManuella")) || {};
+
+        function salvar() {
+            localStorage.setItem("livrosManuella", JSON.stringify(livros));
+        }
+
+        function atualizarContador() {
+            let total = 0;
+            for (let letra in livros) total += livros[letra].length;
+
+            document.getElementById("contador").innerText =
+                `Ela já tem ${total} livro${total === 1 ? "" : "s"}! 💗`;
+        }
+
+        function adicionarLivro() {
+            const nome = document.getElementById("inputLivro").value.trim();
+            if (!nome) return;
+
+            const letra = nome[0].toUpperCase();
+
+            if (!livros[letra]) livros[letra] = [];
+
+            livros[letra].push(nome);
+            livros[letra].sort((a, b) => a.localeCompare(b));
+
+            salvar();
+            mostrarLista();
+            atualizarContador();
+
+            document.getElementById("inputLivro").value = "";
+        }
+
+        document.getElementById("btnAdicionar").addEventListener("click", adicionarLivro);
+        document.getElementById("inputLivro").addEventListener("keypress", e => {
+            if (e.key === "Enter") adicionarLivro();
+        });
+
+        function removerLivro(letra, index) {
+            livros[letra].splice(index, 1);
+
+            if (livros[letra].length === 0) delete livros[letra];
+
+            salvar();
+            mostrarLista();
+            atualizarContador();
+        }
+
+        function mostrarLista() {
+            const container = document.getElementById("listaLetras");
+            container.innerHTML = "";
+
+            const letrasOrdenadas = Object.keys(livros).sort();
+
+            letrasOrdenadas.forEach(letra => {
+                const secao = document.createElement("details");
+
+                secao.innerHTML = `
+                    <summary>Letra ${letra}</summary>
+                    <ul>
+                        ${livros[letra].map((l, i) => `
+                            <li>
+                                ${l}
+                                <span class="trash" onclick='removerLivro("${letra}", ${i})'>🗑️</span>
+                            </li>
+                        `).join("")}
+                    </ul>
+                `;
+
+                container.appendChild(secao);
+            });
+        }
+
+        mostrarLista();
+        atualizarContador();
+    </script>
+
+</body>
+</html>
